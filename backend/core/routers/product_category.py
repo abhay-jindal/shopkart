@@ -8,11 +8,11 @@ from core.schemas.schemas import CategoryBulkRequest, CategoryCreate, CategoryRe
 from core.services.auth import get_current_admin
 from core.services.cache import LocalCache
 
-router = APIRouter(prefix="/categories", tags=["Categories"])
+router = APIRouter(prefix="/product/categories", tags=["Product Categories"])
 cache = LocalCache()
 
 
-@router.post("/", status_code=201)
+@router.post("", status_code=201)
 def add(
     payload: CategoryBulkRequest,
     db: Session = Depends(get_db),
@@ -37,7 +37,7 @@ def add(
         "message": f"{len(added)} created, {len(skipped)} skipped"
     }
 
-@router.get("/", response_model=List[CategoryResponse])
+@router.get("", response_model=List[CategoryResponse])
 def get_categories(db: Session = Depends(get_db)):
     cached_data = cache.get("categories")
     if cached_data:
@@ -47,21 +47,21 @@ def get_categories(db: Session = Depends(get_db)):
     cache.set("categories", categories, ttl=300)  # cache for 5 min
     return categories
 
-@router.put("/{category_id}", status_code=200)
+@router.put("/{id}", status_code=200)
 def update(
-    category_id: int = Path(..., gt=0),
+    id: int = Path(..., gt=0),
     payload: CategoryCreate = Depends(),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_admin)
 ):
-    category = db.query(ProductCategory).filter(ProductCategory.id == category_id).first()
+    category = db.query(ProductCategory).filter(ProductCategory.id == id).first()
     if not category:
         raise HTTPException(status_code=404, detail="Category not found.")
 
     # Check for duplicate name
     duplicate = db.query(ProductCategory).filter(
         ProductCategory.name.ilike(payload.name),
-        ProductCategory.id != category_id
+        ProductCategory.id != id
     ).first()
     if duplicate:
         raise HTTPException(status_code=400, detail="Category name already exists.")

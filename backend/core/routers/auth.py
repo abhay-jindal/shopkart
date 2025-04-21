@@ -5,7 +5,6 @@ from core.schemas.schemas import UserOut, UserCreate, Token, UserLogin
 from core.utils.utils import hash_password, verify_password
 
 from core.models.models import User
-
 from core.services.auth import create_access_token, get_current_user, get_current_admin
 
 router = APIRouter(tags=["Auth"], prefix="/auth")

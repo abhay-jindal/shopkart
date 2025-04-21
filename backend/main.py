@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 import uvicorn
-from core.routers import auth, product_category, product
+from core.routers import auth, product_category, product, product_variant, address, payment, order
+
+from starlette.middleware.cors import CORSMiddleware
 
 
 description = """
@@ -39,9 +41,28 @@ app = FastAPI(
     },
 )
 
+# Allowed frontend origins (React dev server, etc.)
+origins = [
+    "http://localhost:3000",
+    # add more domains here if needed (like for production)
+]
+
+# Apply CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],                # Allow all methods (GET, POST, etc.)
+    allow_headers=["*"],                # Allow all headers (including Authorization)
+)
+
 app.include_router(auth.router)
 app.include_router(product_category.router)
 app.include_router(product.router)
+app.include_router(product_variant.router)
+app.include_router(address.router)
+app.include_router(payment.router)
+app.include_router(order.router)
 
 
 

@@ -1,83 +1,65 @@
 import random
 import json
 
-# Realistic image URLs grouped by type
-image_urls = {
-    "men": [
-        "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab",
-        "https://images.unsplash.com/photo-1512436991641-6745cdb1723f",
-        "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c"
-    ],
-    "women": [
-        "https://images.unsplash.com/photo-1514995669114-b77e9a8a8b6c",
-        "https://images.unsplash.com/photo-1556909212-d0fc2fb2a9b0",
-        "https://images.unsplash.com/photo-1520975918311-29563f69d3c4"
-    ],
-    "kids": [
-        "https://images.unsplash.com/photo-1607746882042-944635dfe10e",
-        "https://images.unsplash.com/photo-1520975685090-3b13c92b77bd",
-        "https://images.unsplash.com/photo-1544005313-94ddf0286df2"
-    ],
-    "accessories": [
-        "https://images.unsplash.com/photo-1618354691345-1f6464a04776",
-        "https://images.unsplash.com/photo-1584467735871-8c96e0d9768a",
-        "https://images.unsplash.com/photo-1616712260389-4f42ec38fd84"
-    ]
-}
-
-# Sample categories with ids
-categories = [
-    {"id": 1, "name": "Men - Jackets", "type": "men"},
-    {"id": 2, "name": "Women - Skirts", "type": "women"},
-    {"id": 3, "name": "Kids - Hoodies", "type": "kids"},
-    {"id": 4, "name": "Men - T-Shirts", "type": "men"},
-    {"id": 5, "name": "Women - Dresses", "type": "women"},
-    {"id": 6, "name": "Kids - T-Shirts", "type": "kids"},
-    {"id": 7, "name": "Unisex - Sweatshirts", "type": "men"},
-    {"id": 8, "name": "Accessories", "type": "accessories"},
-    {"id": 9, "name": "Footwear", "type": "accessories"}
+# Unsplash HD image URLs (you can expand this list)
+UNSPLASH_IMAGES = [
+    "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8YXBwYXJlbHxlbnwwfHwwfHx8MA%3D%3D",
+    "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTl8fGFwcGFyZWx8ZW58MHx8MHx8fDA%3D",
+    "https://plus.unsplash.com/premium_photo-1664392147011-2a720f214e01?q=80&w=2078&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    "https://images.unsplash.com/photo-1611312449408-fcece27cdbb7?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NjJ8fGFwcGFyZWx8ZW58MHx8MHx8fDA%3D",
+    "https://images.unsplash.com/photo-1598532163257-ae3c6b2524b6?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YmFnc3xlbnwwfHwwfHx8MA%3D%3D",
+    "https://images.unsplash.com/photo-1516762689617-e1cffcef479d?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTA0fHxhcHBhcmVsfGVufDB8fDB8fHww",
+    "https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OTF8fGFwcGFyZWx8ZW58MHx8MHx8fDA%3D"
 ]
 
-brands = ["Nike", "Adidas", "Zara", "H&M", "Uniqlo", "Levi's", "Puma", "Under Armour"]
-descriptions = [
-    "High quality and comfortable",
-    "Made from premium materials",
-    "Perfect for all seasons",
-    "Durable and stylish",
-    "Available in various sizes and colors",
-    "Trendy and modern design",
-    "Best suited for casual outings",
-    "A must-have in your wardrobe",
-    "Inspired by latest fashion trends"
+# Predefined category IDs from your structure (1–17)
+CATEGORY_IDS = list(range(1, 11))
+
+# Sample product names (feel free to add more)
+PRODUCT_NAMES = [
+    "Sleek Essential Tee", "City Life Oversized Tee", "Structured Poplin Shirt",
+    "Soft Touch Hoodie", "AirLite Zip Jacket", "Modern Fit Polo", "Weekend Co-ord Set",
+    "Distressed Indigo Denim", "Urban Tapered Joggers", "Breezy Linen Shorts",
+    "Tailored Formal Pants", "Core Gym Tee", "Swift Motion Shorts", "Elite Lounge Set",
+    "Tiny Rebel Tee", "Doodle Days Set", "Adventure Ready Set", "Muted Tone Sweatshirt",
+    "Layered Collar Tee", "Heritage Button-Up", "Raw Seam Crewneck", "Textured Knit Top",
+    "Shadow Wash Jeans", "Box Fit Tank", "Crinkle Cotton Shirt", "Relax Mode Shorts",
+    "Crosswalk Windbreaker", "Clean Stitch Polo", "Studio Fit Track Pants",
+    "Essential Overshirt", "Noir Relax Tee", "Mono Set Hoodie", "SoftFlex Leggings",
+    "Contrast Detail Tee", "Easy Day Co-ord", "Comfy Fit Set", "Trek Shorts",
+    "Grid Pocket Jacket", "Tonal Layer Shirt", "Chic Shift Dress", "Cloud Soft Joggers",
+    "Neon Edge Tee", "Everyday Hoodie", "Mini Motion Tee", "Graffiti Splash Set",
+    "Playground Pro Set", "Metro Chic Top", "Luxe Stretch Shirt", "Slouchy Fit Tee"
 ]
 
-product_names = [
-    "Classic Jacket", "Denim Jacket", "Bomber Jacket", "Parka", "Puffer Jacket",
-    "Pleated Skirt", "Mini Skirt", "Maxi Skirt", "A-Line Skirt", "Wrap Skirt",
-    "Kids Hoodie", "Pullover Hoodie", "Zipper Hoodie", "Graphic Hoodie", "Cropped Hoodie",
-    "Graphic Tee", "Plain T-Shirt", "V-Neck T-Shirt", "Oversized Tee", "Striped Tee",
-    "Summer Dress", "Evening Dress", "Casual Dress", "Midi Dress", "Bodycon Dress",
-    "Kids Tee", "Cartoon Tee", "Funny Print Tee", "Bright Color Tee", "Animal Print Tee",
-    "Sweatshirt", "Fleece Sweatshirt", "Crewneck Sweatshirt", "Zip Sweatshirt", "Hooded Sweatshirt",
-    "Cap", "Scarf", "Sunglasses", "Backpack", "Watch",
-    "Sneakers", "Loafers", "Boots", "Sandals", "Flip Flops"
+# Sample descriptions
+DESCRIPTIONS = [
+    "Durable and stylish", "Soft, breathable fabric", "Designed for all-day comfort",
+    "Modern cut, classic feel", "Premium stitching and fit", "Minimalist design",
+    "Great for casual or sport", "Effortless everyday wear", "Street-ready vibes",
+    "Timeless look with comfort"
 ]
 
+# Sample brands
+BRANDS = ["Nike", "Adidas", "Under Armour", "Puma", "Uniqlo", "Champion", "Levi's", "H&M", "Zara"]
+
+# Generate products
 products = []
-for i in range(1, 101):
-    category = random.choice(categories)
+
+for i in range(1, 201):
     product = {
         "id": i,
-        "name": random.choice(product_names),
-        "description": random.choice(descriptions),
-        "brand": random.choice(brands),
-        "price": round(random.uniform(19.99, 149.99), 2),
-        "category_id": category["id"],
-        "image_url": random.choice(image_urls[category["type"]])
+        "name": random.choice(PRODUCT_NAMES),
+        "description": random.choice(DESCRIPTIONS),
+        "brand": random.choice(BRANDS),
+        "price": round(random.uniform(399.0, 7999.0), 2),
+        "category_id": random.choice(CATEGORY_IDS),
+        "image_url": random.choice(UNSPLASH_IMAGES)
     }
     products.append(product)
 
-# Return the JSON string
+# Save to JSON file
+with open("products.json", "w") as f:
+    json.dump(products, f, indent=4)
 
-print("-----------------------------------------")
-print(json.dumps(products, indent=2))
+print("✅ 200 products generated without any external libraries and saved to 'products.json'")

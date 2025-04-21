@@ -24,8 +24,15 @@ class PaymentMethod(str, enum.Enum):
 
 class PaymentStatus(str, enum.Enum):
     pending = "pending"
-    completed = "completed"
+    paid = "paid"
     failed = "failed"
+
+class CourierPartners(str, enum.Enum):
+    DTDC = "DTDC"
+    BlueDart = "BlueDart"
+    DHL = "DHL"
+    FedEx = "FedEx"
+    IndiaPost = "IndiaPost"
 
 # MODELS
 class User(Base):
@@ -45,8 +52,9 @@ class UserAddress(Base):
     user_id = Column(Integer, ForeignKey("users.id"))
     address_line1 = Column(String)
     city = Column(String)
-    zip_code = Column(String)
-    is_default = Column(Boolean)
+    state = Column(String)
+    zip_code = Column(Integer)
+    alias = Column(String)
     user = relationship("User", backref="addresses")
 
 class ProductCategory(Base):
@@ -100,9 +108,12 @@ class Payment(Base):
     __tablename__ = "payments"
     id = Column(Integer, primary_key=True)
     order_id = Column(Integer, ForeignKey("orders.id"))
-    payment_method = Column(Enum(PaymentMethod))
-    status = Column(Enum(PaymentStatus))
+    payment_method = Column(String)
+    status = Column(String)
     paid_at = Column(DateTime)
+    description = Column(Text)
+    amount = Column(DECIMAL)
+    currency = Column(String)
     transaction_id = Column(Integer)
 
 class Shipment(Base):

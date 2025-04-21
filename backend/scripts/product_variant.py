@@ -1,39 +1,44 @@
 import random
 import json
 
-# Sizes and colors
-sizes = ["S", "M", "L", "XL", "XXL"]
-colors = ["Black", "White", "Blue", "Red", "Green", "Gray"]
+# Assuming you already have products loaded from the products.json
+with open("./products.json") as f:
+    products = json.load(f)
 
-# Simulate 100 base products (IDs from 1 to 100)
+SIZES = ["XS", "S", "M", "L", "XL"]
+COLORS = ["Black", "White", "Navy", "Olive", "Grey", "Beige", "Maroon"]
+
 variants = []
 variant_id = 1
 
-for product_id in range(1, 101):
-    used_combos = set()
-    for _ in range(random.randint(2, 4)):  # 2 to 5 variants per product
+for product in products:
+    num_variants = random.randint(2, 5)  # Each product will have 2–5 variants
+    used_combinations = set()
+
+    for _ in range(num_variants):
+        # Ensure unique size-color combination per product
         while True:
-            size = random.choice(sizes)
-            color = random.choice(colors)
-            combo = (size, color)
-            if combo not in used_combos:
-                used_combos.add(combo)
+            size = random.choice(SIZES)
+            color = random.choice(COLORS)
+            key = (size, color)
+            if key not in used_combinations:
+                used_combinations.add(key)
                 break
 
         variant = {
             "id": variant_id,
-            "product_id": product_id,
-            "sku": f"SKU-{product_id:03d}-{size[0]}{color[0]}",
+            "product_id": product["id"],
+            "sku": f"{product['name'][:3].upper()}-{variant_id:04}",
             "size": size,
             "color": color,
-            "stock": random.randint(10, 100),
-            "price": round(random.uniform(19.99, 149.99), 2)
+            "stock": random.randint(0, 50),
+            "price": round(product["price"] + random.uniform(-200.0, 200.0), 2)
         }
         variants.append(variant)
         variant_id += 1
 
-# Save to JSON file
-with open("product_variants.json", "w") as f:
-    json.dump(variants, f, indent=2)
+# Save variants to JSON
+with open("variants.json", "w") as f:
+    json.dump(variants, f, indent=4)
 
-print("✅ product_variants.json file generated.")
+print(f"✅ {len(variants)} product variants generated and saved to 'variants.json'")
