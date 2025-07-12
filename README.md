@@ -1,4 +1,8 @@
 # 🛒 ShopKart - Full Stack E-commerce Application
+![GitHub repo size](https://img.shields.io/github/repo-size/abhay-jindal/wallet)
+![GitHub last commit](https://img.shields.io/github/last-commit/abhay-jindal/wallet)
+![GitHub stars](https://img.shields.io/github/stars/abhay-jindal/wallet?style=social)
+![License](https://img.shields.io/github/license/abhay-jindal/wallet)
 
 A modern, feature-rich e-commerce platform built with React frontend and FastAPI backend, providing a complete online shopping experience.
 
