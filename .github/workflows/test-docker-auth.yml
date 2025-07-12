@@ -1,0 +1,33 @@
+name: Test Docker Hub Authentication
+
+on:
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  test-auth:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Test Docker Hub Login
+        run: |
+          echo "Testing Docker Hub authentication..."
+          echo "Username: ${{ secrets.DOCKER_USERNAME }}"
+          echo "Password length: ${#DOCKER_PASSWORD}"
+          
+          # Test login
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          
+          echo "Login successful!"
+
+      - name: Test Repository Access
+        run: |
+          echo "Testing repository access..."
+          
+          # Test if repositories exist
+          docker pull "${{ secrets.DOCKER_USERNAME }}/shopkart_backend:latest" || echo "shopkart_backend repository not found or no access"
+          docker pull "${{ secrets.DOCKER_USERNAME }}/shopkart_frontend:latest" || echo "shopkart_frontend repository not found or no access"
+          docker pull "${{ secrets.DOCKER_USERNAME }}/shopkart_app:latest" || echo "shopkart_app repository not found or no access"
+          
+          echo "Repository access test completed!" 
