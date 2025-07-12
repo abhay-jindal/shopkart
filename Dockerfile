@@ -7,8 +7,8 @@ WORKDIR /app/frontend
 # Copy frontend package files
 COPY frontend/package*.json ./
 
-# Install frontend dependencies
-RUN npm ci --only=production
+# Install all dependencies (including dev dependencies for build)
+RUN npm ci
 
 # Copy frontend source code
 COPY frontend/ .
@@ -66,8 +66,8 @@ COPY --from=backend-builder /root/.local /root/.local
 # Copy backend application code
 COPY backend/ ./backend/
 
-# Copy frontend built files from frontend builder stage
-COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
+# Copy frontend built files from frontend builder stage (using build directory)
+COPY --from=frontend-builder /app/frontend/build ./frontend/build
 
 # Copy nginx configuration
 COPY frontend/nginx.conf /etc/nginx/nginx.conf
