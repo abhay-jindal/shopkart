@@ -72,9 +72,11 @@ COPY --from=frontend-builder /app/frontend/build ./frontend/build
 # Copy nginx configuration
 COPY frontend/nginx.conf /etc/nginx/nginx.conf
 
-# Create necessary directories and set permissions
-RUN mkdir -p /app/logs /app/uploads /var/log/nginx && \
-    chown -R appuser:appuser /app /var/log/nginx /var/cache/nginx /etc/nginx/conf.d
+# Create necessary directories with proper ownership
+RUN mkdir -p /app/logs /app/uploads && \
+    mkdir -p /var/log/nginx /var/cache/nginx && \
+    chown -R appuser:appuser /app && \
+    chown -R appuser:appuser /var/log/nginx /var/cache/nginx /etc/nginx/conf.d
 
 # Create startup script
 RUN echo '#!/bin/bash\n\
@@ -84,7 +86,8 @@ nginx\n\
 # Start Python backend\n\
 cd /app/backend\n\
 python main.py\n\
-' > /app/start.sh && chmod +x /app/start.sh
+' > /app/start.sh && chmod +x /app/start.sh && \
+    chown appuser:appuser /app/start.sh
 
 # Switch to non-root user
 USER appuser
