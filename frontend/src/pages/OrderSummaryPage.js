@@ -1,12 +1,15 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, Download } from "lucide-react";
 import { motion } from "framer-motion";
 import Header from "../components/Header";
+import axios from "../utils/axios";
+import { useToast } from "../context";
 
 const OrderSummaryPage = () => {
     const { state } = useLocation();
     const navigate = useNavigate();
+    const { showSuccess, showError } = useToast();
 
     useEffect(() => {
         if (!state?.order) {
@@ -14,10 +17,34 @@ const OrderSummaryPage = () => {
         }
     }, [state, navigate]);
 
+    const handleDownloadInvoice = async () => {
+        try {
+            const response = await axios.get(`/orders/${order.id}/invoice`, {
+                requireAuth: true,
+                responseType: 'blob'
+            });
+
+            // Create a blob URL and trigger download
+            const blob = new Blob([response.data], { type: 'application/pdf' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `invoice-${order.id.toString().padStart(6, '0')}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+
+            showSuccess('Invoice downloaded successfully!');
+        } catch (error) {
+            console.error('Error downloading invoice:', error);
+            showError('Failed to download invoice. Please try again.');
+        }
+    };
+
     if (!state?.order) return null;
 
     const order = state.order;
-
 
     const centerNavigation = () => {
         return (
@@ -58,6 +85,17 @@ const OrderSummaryPage = () => {
                     <p className="text-sm text-gray-500">
                         Order <span className="font-medium text-gray-800">#{order.id}</span> placed successfully. An Confirmation email has been sent!
                     </p>
+                    
+                    {/* Download Invoice Button */}
+                    <motion.button
+                        onClick={handleDownloadInvoice}
+                        className="mt-4 flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                    >
+                        <Download size={16} />
+                        Download Invoice
+                    </motion.button>
                 </div>
 
                 <div className="bg-white rounded-2xl  p-5 space-y-6 text-sm">

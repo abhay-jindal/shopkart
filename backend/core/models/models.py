@@ -103,6 +103,7 @@ class OrderItem(Base):
     variant_id = Column(Integer, ForeignKey("product_variants.id"))
     quantity = Column(Integer)
     unit_price = Column(DECIMAL)
+    variant = relationship("ProductVariant")
 
 class Payment(Base):
     __tablename__ = "payments"

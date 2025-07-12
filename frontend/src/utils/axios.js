@@ -2,7 +2,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 
 const instance = axios.create({
-  baseURL: 'http://localhost:8000', // Replace with your actual backend URL
+  baseURL: 'http://localhost:8000/api', // Updated to include /api prefix
   headers: {
     'Content-Type': 'application/json',
   },

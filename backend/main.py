@@ -56,13 +56,13 @@ app.add_middleware(
     allow_headers=["*"],                # Allow all headers (including Authorization)
 )
 
-app.include_router(auth.router)
-app.include_router(product_category.router)
-app.include_router(product.router)
-app.include_router(product_variant.router)
-app.include_router(address.router)
-app.include_router(payment.router)
-app.include_router(order.router)
+app.include_router(auth.router, prefix="/api")
+app.include_router(product_category.router, prefix="/api")
+app.include_router(product.router, prefix="/api")
+app.include_router(product_variant.router, prefix="/api")
+app.include_router(address.router, prefix="/api")
+app.include_router(payment.router, prefix="/api")
+app.include_router(order.router, prefix="/api")
 
 
 

@@ -1,13 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from core.services.razorpay import client
 import datetime
 from typing import List, Optional
 
 from core.database.database import get_db
-from core.models.models import CourierPartners, Order, OrderItem, OrderStatus, Payment, PaymentStatus, Shipment, User
+from core.models.models import CourierPartners, Order, OrderItem, OrderStatus, Payment, PaymentStatus, Shipment, User, UserAddress
 from core.schemas.schemas import OrderCreateRequest, OrderResponse, OrderWithTotalResponse
 from core.services.auth import get_current_user
+from core.services.pdf_service import InvoicePDFService
 import random
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
@@ -26,6 +28,66 @@ def get_orders(
 
     # Optionally return metadata
     return { "total": total, "orders": results }
+
+@router.get("/{order_id}/invoice")
+def download_invoice(
+    order_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Download invoice PDF for a specific order"""
+    try:
+        # Get the order with all related data
+        order = db.query(Order).filter(
+            Order.id == order_id,
+            Order.user_id == current_user.id
+        ).first()
+        
+        if not order:
+            raise HTTPException(status_code=404, detail="Order not found")
+        
+        # Get order items with product and variant information
+        order_items = db.query(OrderItem).filter(OrderItem.order_id == order_id).all()
+        
+        if not order_items:
+            raise HTTPException(status_code=404, detail="No items found for this order")
+        
+        # Get user information
+        user = db.query(User).filter(User.id == order.user_id).first()
+        
+        # Get shipping address
+        shipping_address = db.query(UserAddress).filter(UserAddress.id == order.shipping_address_id).first()
+        
+        if not shipping_address:
+            raise HTTPException(status_code=404, detail="Shipping address not found")
+        
+        # Get payment information
+        payment = db.query(Payment).filter(Payment.order_id == order_id).first()
+        
+        if not payment:
+            raise HTTPException(status_code=404, detail="Payment information not found")
+        
+        # Generate PDF
+        pdf_service = InvoicePDFService()
+        pdf_buffer = pdf_service.generate_invoice_pdf(
+            order=order,
+            order_items=order_items,
+            user=user,
+            shipping_address=shipping_address,
+            payment=payment
+        )
+        
+        # Return the PDF as a streaming response
+        return StreamingResponse(
+            iter([pdf_buffer.getvalue()]),
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": f"attachment; filename=invoice-{order_id:06d}.pdf"
+            }
+        )
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to generate invoice: {str(e)}")
 
 @router.post("", response_model=OrderResponse)
 async def create_order(
